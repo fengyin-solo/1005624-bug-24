@@ -67,6 +67,44 @@
       <span>共 {{ total }} 条停暖通知记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <section class="tracking-block">
+      <header class="page-head">
+        <div>
+          <h3>待跟踪清单</h3>
+          <p class="page-desc">水力平衡复调（调节重交）结果回写到这里；回路确认平衡后自动核销，一条回路只占一行。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" type="button" @click="reloadTracking">刷新跟踪清单</button>
+        </div>
+      </header>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>调节编号</th><th>换热站</th><th>调节回路</th><th>阀门开度</th>
+            <th>流量读数</th><th>调节人</th><th>调节日期</th><th>轮次</th>
+            <th>回写时间</th><th>跟踪状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in trackingItems" :key="item.id">
+            <td>{{ item.调节编号 }}</td>
+            <td>{{ item.换热站 }}</td>
+            <td>{{ item.调节回路 }}</td>
+            <td>{{ item.阀门开度 }}</td>
+            <td>{{ item.流量读数 }}</td>
+            <td>{{ item.调节人 }}</td>
+            <td>{{ item.调节日期 }}</td>
+            <td>第 {{ item.轮次 }} 轮</td>
+            <td>{{ formatTime(item.createdAt) }}</td>
+            <td :class="item.open ? 'track-open' : 'track-done'">{{ item.open ? '待跟踪' : '已平衡核销' }}</td>
+          </tr>
+          <tr v-if="!trackingItems.length">
+            <td colspan="10" class="empty-state">暂无复调回写记录，水力平衡里提交调节重交后会落到这里</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </section>
 </template>
 
@@ -78,8 +116,9 @@ import {
   listEntries,
   moduleMeta,
   runAction as applyAction,
+  trackingEntries,
 } from '@/api/local-service'
-import type { EntryRow } from '@/data/types'
+import type { EntryRow, TrackingItem } from '@/data/types'
 
 const meta = moduleMeta('heatnotice')
 const columns = ["通知编号", "影响片区", "停暖原因", "计划开始", "计划恢复", "通知方式", "发布人", "通知状态"]
@@ -92,6 +131,19 @@ const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
+const trackingItems = ref<TrackingItem[]>([])
+
+function formatTime(iso: string): string {
+  if (!iso) {
+    return '—'
+  }
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleString('zh-CN', { hour12: false })
+}
+
+function reloadTracking() {
+  trackingItems.value = trackingEntries()
+}
 const statusSummary = computed(() =>
   statuses.map((status: string) => ({
     status,
@@ -133,5 +185,8 @@ function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  reload()
+  reloadTracking()
+})
 </script>
