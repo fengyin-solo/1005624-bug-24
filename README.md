@@ -68,4 +68,13 @@ npm run build
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
-- 想回到初始数据：清掉浏览器里 `district-heating:entries` 这一项，或调用 `resetModule(模块)`。
+- 流转只能顺着状态表往前走；模块在 `actionFrom` 里登记的白名单是唯一例外
+  （目前仅水力平衡的「复调重交：需复调 → 调节中」）。越序/回退动作在 `runAction`
+  统一打回，页面用 `allowedActions` 只亮出当前状态可执行的动作。
+- 水力平衡同一条「调节回路」全库只落一条记录：重复登记在入口拦截，复调重交追加
+  「底稿留痕」版本而不新增行；存量重复底稿在读取时按回路合并。阀门开度统一按
+  0~100 百分数存数值、用 `formatOpening` 展示，列表与详情口径一致，非法开度挡回。
+- 复调重交的结果回写到停暖通知的「待跟踪清单」（独立持久化
+  `district-heating:followups`），同回路重复重交只保留最新一条，办结后移出清单。
+- 想回到初始数据：清掉浏览器里 `district-heating:entries`（跟踪清单是
+  `district-heating:followups`）这一项，或调用 `resetModule(模块)`。

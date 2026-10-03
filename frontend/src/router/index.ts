@@ -7,6 +7,7 @@ const Secondarynet = () => import('@/views/secondarynet/index.vue')
 const Stationpatrol = () => import('@/views/stationpatrol/index.vue')
 const Roomtemp = () => import('@/views/roomtemp/index.vue')
 const Hydraulic = () => import('@/views/hydraulic/index.vue')
+const HydraulicDetail = () => import('@/views/hydraulic/detail.vue')
 const Heatmeter = () => import('@/views/heatmeter/index.vue')
 const Emergencyrepair = () => import('@/views/emergencyrepair/index.vue')
 const Valvewell = () => import('@/views/valvewell/index.vue')
@@ -30,6 +31,7 @@ const router = createRouter({
     { path: '/stationpatrol', name: 'stationpatrol', component: Stationpatrol },
     { path: '/roomtemp', name: 'roomtemp', component: Roomtemp },
     { path: '/hydraulic', name: 'hydraulic', component: Hydraulic },
+    { path: '/hydraulic/:id', name: 'hydraulic-detail', component: HydraulicDetail },
     { path: '/heatmeter', name: 'heatmeter', component: Heatmeter },
     { path: '/emergencyrepair', name: 'emergencyrepair', component: Emergencyrepair },
     { path: '/valvewell', name: 'valvewell', component: Valvewell },
